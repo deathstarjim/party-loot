@@ -1,0 +1,79 @@
+<h1>Party Inventory Foundry v13</h1>
+<p>A party inventory sheet and loot management module for Foundry VTT v13 and D&amp;D 5e. Supports the default dnd5e v4 character sheet, Tidy 5e Sheet v2, and Tidy 5e Classic.</p>
+<p>This module is a heavily updated fork of the original Party Inventory by teroparvinen: <a href="https://github.com/teroparvinen/foundry-party-inventory">https://github.com/teroparvinen/foundry-party-inventory</a></p>
+
+<h2>Features</h2>
+<ul>
+  <li>Party inventory window showing all items flagged as party loot across all player characters</li>
+  <li>Compatible with the <strong>default D&amp;D 5e (dnd5e v4 / 5.3.0) character sheet</strong></li>
+  <li>Compatible with <strong>Tidy 5e Sheet v2</strong> and <strong>Tidy 5e Classic</strong></li>
+  <li>"Add to Party Inventory" toggle button on item rows in the character sheet — limited to physical items (weapons, equipment, consumables, tools, loot, containers)</li>
+  <li><strong>Scratchpad</strong> for staging loot before distributing it to characters, with:
+    <ul>
+      <li>Item name, type dropdown, quantity field, and icon</li>
+      <li>Rich text (ProseMirror) description editor — auto-populated when dragging items from a character sheet</li>
+      <li>Split items into two equal stacks</li>
+      <li>Distribute items across the party with a per-character quantity dialog</li>
+    </ul>
+  </li>
+  <li>Currency pooling at the bottom of the party inventory:
+    <ul>
+      <li>Track PP, GP, EP, SP, and CP</li>
+      <li>Take currency to your own character</li>
+      <li>Split currency evenly among all player characters</li>
+    </ul>
+  </li>
+  <li>Quick access button in the scene controls toolbar (token layer)</li>
+</ul>
+
+<h2>Goal</h2>
+<p>Quest/story-based items all players need to remember and see are hard to track and when tracked separately don't work as part of the character sheet, don't incur encumbrance etc. This mod attempts to remedy that situation.</p>
+<p>The party inventory list displays all items individual characters carry that have been flagged as being visible in the party inventory, while simultaneously functioning in all other aspects as stuff the character is carrying. The description of the items can be accessed and the current owner of the item is displayed.</p>
+<p>When the DM hands out loot, not all of the items qualify as standard gear from the rule books. For this purpose, the party inventory sheet features a scratchpad where any player can write down items, giving them a name, a description, a quantity, and a type. The item can then be given to a character using drag and drop from the scratchpad, similar to how items are added from the compendiums.</p>
+
+<h2>Usage</h2>
+<p>The party inventory sheet can be accessed through the button in the token layer scene controls, or through a header button on Tidy 5e sheets.</p>
+<p>Any item on a character sheet can be toggled to be visible in the party inventory. Only items owned by a character with a player owner are listed. The toggle button appears on physical inventory items:</p>
+<ul>
+  <li><strong>Default dnd5e sheet</strong>: Group icon next to the item controls</li>
+  <li><strong>Tidy 5e v2</strong>: In the item actions column</li>
+  <li><strong>Tidy 5e Classic</strong>: In the item controls column</li>
+</ul>
+
+<h3>Scratchpad</h3>
+<p>Use the <strong>Add New Entry</strong> button to create a blank scratchpad item, or drag an item directly from a character sheet, world item list, or compendium onto the scratchpad.</p>
+<p>Each scratchpad item can have:</p>
+<ul>
+  <li>A name</li>
+  <li>A quantity</li>
+  <li>An item type</li>
+  <li>A rich text description (auto-populated from dragged items)</li>
+  <li>An icon (if the <a href="https://github.com/teroparvinen/foundry-icon-picker">Icon Picker</a> module is installed)</li>
+</ul>
+<p>Drag an item from the scratchpad onto a character sheet to create it in that character's inventory. When the item is added, it is removed from the scratchpad.</p>
+<p>Items with a quantity greater than 1 can be <strong>split</strong> into two equal stacks or <strong>distributed</strong> across the party using the distribute dialog, which pre-fills each player character with an even share and shows a live remainder counter.</p>
+
+<h3>Currency</h3>
+<p>Coins handed out to the party can be tracked at the bottom of the inventory sheet. There are buttons for:</p>
+<ul>
+  <li>An individual player taking a given amount of currency for their character</li>
+  <li>Distributing all the coins evenly among all player owned characters</li>
+</ul>
+
+<h2>Limitations</h2>
+<p>Technically, modifying the scratchpad requires message passing to a Gamemaster user and will not work unless a GM is logged in. In practice, you'd only run into this situation on a remotely hosted always-on server. Nothing will break, but you'll have to wait for the GM to log on if you want to use the scratchpad.</p>
+
+<h2>Recommended Complimentary Modules</h2>
+<ul>
+  <li><a href="https://github.com/kgar/foundry-vtt-tidy-5e-sheets">Tidy 5e Sheet</a> for a clean character sheet UI</li>
+  <li><a href="https://github.com/Sepichat/FoundryVTT-GiveItem">Give Item</a> by Sepichat for exchanging items between characters</li>
+  <li><a href="https://github.com/teroparvinen/foundry-icon-picker">Icon Picker</a> for allowing players to pick icons for scratchpad items</li>
+</ul>
+
+<h2>Macro API</h2>
+<p>The module exposes an API for opening the window from a macro:</p>
+<p><code>game.modules.get('party-inventory-foundry-v13').api.openWindow()</code></p>
+
+<h2>License</h2>
+<p>This Foundry VTT module is licensed under a Creative Commons Attribution 4.0 International License.</p>
+<p>This work is licensed under the Foundry Virtual Tabletop EULA - Limited License Agreement for module development.</p>

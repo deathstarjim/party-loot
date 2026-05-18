@@ -1,0 +1,30 @@
+<form>
+    <div class="distribute-header flexrow" style="align-items: center; gap: 8px; padding: 4px 0 8px;">
+        <img src="{{item.img}}" alt="{{item.name}}" width="36" height="36"
+            style="border: none; object-fit: contain; flex: 0 0 36px;" />
+        <div>
+            <strong>{{item.name}}</strong>
+            &mdash; {{localize "PARTY-INVENTORY.total-quantity"}}: <strong>{{quantity}}</strong>
+        </div>
+    </div>
+
+    <div class="distribute-actors">
+        {{#each actors as |actor|}}
+        <div class="party-inventory__currency-row flexrow" style="align-items: center; gap: 8px; padding: 4px 0;">
+            <div class="party-inventory__actor-name flex1">{{actor.name}}</div>
+            <input class="distribute-qty-input" type="number" name="actors.{{actor.id}}" value="{{actor.quantity}}"
+                min="0" style="width: 60px; text-align: center;" />
+        </div>
+        {{/each}}
+    </div>
+
+    <div class="distribute-footer flexrow"
+        style="padding: 8px 0 4px; font-size: 12px; color: var(--color-text-dark-secondary);">
+        <span>{{localize "PARTY-INVENTORY.distribute-remainder"}}: <strong
+                class="distribute-remainder-value">—</strong></span>
+    </div>
+
+    <button type="submit" class="flex0">
+        <i class="fas fa-share"></i> {{localize "PARTY-INVENTORY.distribute-item"}}
+    </button>
+</form>

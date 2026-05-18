@@ -1,0 +1,41 @@
+{
+    "id": "party-loot",
+    "title": "Party Loot",
+    "description": "Shows items carried by characters flagged as Party Loot in one list. Items can be added to the list by dragging and dropping them from character inventories, and can be distributed to characters from the list as well.",
+    "authors": [
+        {
+            "name": "Jim Piller"
+        }
+    ],
+    "version": "14.0.0",
+    "compatibility": {
+        "minimum": 13,
+        "verified": 14
+    },
+    "relationships": {
+        "systems": [
+            {
+                "id": "dnd5e",
+                "type": "system"
+            }
+        ]
+    },
+    "esmodules": [
+        "./module/party-inventory.js"
+    ],
+    "styles": [
+        "styles/party-inventory.css"
+    ],
+    "languages": [
+        {
+            "lang": "en",
+            "name": "English",
+            "path": "./lang/en.json"
+        }
+    ],
+    "socket": true,
+    "url": "https://github.com/deathstarjim/party-inventory-foundry-v13",
+    "bugs": "https://github.com/deathstarjim/party-inventory-foundry-v13/issues",
+    "manifest": "https://github.com/deathstarjim/party-inventory-foundry-v13/releases/latest/download/module.json",
+    "download": "https://github.com/deathstarjim/party-inventory-foundry-v13/releases/download/13.2.0/module.zip"
+}
