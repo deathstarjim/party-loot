@@ -1,6 +1,6 @@
-# Party Inventory Foundry v13
+# Party Inventory
 
-A party inventory sheet and loot management module for Foundry VTT v13 and D&D 5e. Supports the default dnd5e v4 character sheet, Tidy 5e Sheet v2, and Tidy 5e Classic.
+A party inventory sheet and loot management module for Foundry VTT v14 and D&D 5e. Supports the default dnd5e v4 character sheet, Tidy 5e Sheet v2, and Tidy 5e Classic.
 
 This module is a heavily updated fork of the original Party Inventory by teroparvinen: https://github.com/teroparvinen/foundry-party-inventory
 
@@ -10,6 +10,7 @@ This module is a heavily updated fork of the original Party Inventory by teropar
 - Compatible with the **default D&D 5e (dnd5e v4 / 5.3.0) character sheet**
 - Compatible with **Tidy 5e Sheet v2** and **Tidy 5e Classic**
 - "Add to Party Inventory" toggle button on item rows in the character sheet — limited to physical items (weapons, equipment, consumables, tools, loot, containers)
+- **Give Item** button on character sheet item rows for transferring stackable items directly to another player character
 - **Scratchpad** for staging loot before distributing it to characters, with:
   - Item name, type dropdown, quantity field, and icon
   - Rich text (ProseMirror) description editor — auto-populated when dragging items from a character sheet
@@ -38,6 +39,8 @@ Any item on a character sheet can be toggled to be visible in the party inventor
 - **Default dnd5e sheet**: Group icon next to the item controls
 - **Tidy 5e v2**: In the item actions column
 - **Tidy 5e Classic**: In the item controls column
+
+The adjacent **Give Item** button opens a recipient and quantity dialog. Players can initiate transfers from their own character sheets; the logged-in GM client performs the inventory update through the module socket.
 
 ### Scratchpad
 
@@ -68,7 +71,6 @@ Technically, modifying the scratchpad requires message passing to a Gamemaster u
 ## Recommended complimentary modules
 
 - [Tidy 5e Sheet](https://github.com/kgar/foundry-vtt-tidy-5e-sheets) for a clean character sheet UI
-- [Give Item](https://github.com/Sepichat/FoundryVTT-GiveItem) by Sepichat for exchanging items between characters
 - [Icon Picker](https://github.com/teroparvinen/foundry-icon-picker) for allowing players to pick icons for scratchpad items
 
 ## Macro API

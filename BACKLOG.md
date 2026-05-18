@@ -15,6 +15,8 @@ When a scratchpad item's quantity equals or exceeds the number of active party m
 ---
 
 ### 2. PC-to-PC Direct Item Transfer
+**Status:** Completed
+
 **Priority:** High
 
 Allow a player to give an item directly to another party member without GM involvement or the scratchpad workflow.
@@ -61,3 +63,4 @@ Quality-of-life operations for managing many scratchpad items at once.
 
 - [x] v13 → v14 Foundry compatibility (FA7 icon renames, dnd5e v5 sheet selectors, module.json verified bump)
 - [x] Module renamed from `party-inventory-foundry-v13` to `party-inventory`
+- [x] PC-to-PC direct item transfer from character sheet inventory rows

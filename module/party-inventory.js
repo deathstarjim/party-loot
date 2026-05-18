@@ -2,9 +2,12 @@ import { moduleId, localizationID } from './const.js';
 import { addTogglePartyButton, addTogglePartyButtonTidy, addGroupInventoryIndicatorTidy, addTogglePartyButtonV2 } from './sheet-inject.js';
 import { PartyInventory } from './apps/inventory.js';
 import { SplitCurrency } from './apps/split-currency.js';
+import { registerGiveItemSocket } from './apps/give-item.js';
 
 Hooks.on('setup', () =>
 {
+    registerGiveItemSocket();
+
     const debouncedReload = foundry.utils.debounce(() => window.location.reload(), 100);
 
     game.settings.register(moduleId, 'scratchpad', {

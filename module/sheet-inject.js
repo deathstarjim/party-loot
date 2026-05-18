@@ -1,4 +1,5 @@
 import { moduleId, localizationID } from './const.js';
+import { showGiveItemDialog } from './apps/give-item.js';
 
 // dnd5e v4+ ApplicationV2 character sheet — html is a plain HTMLElement
 export function addTogglePartyButtonV2(html, actor)
@@ -23,6 +24,7 @@ export function addTogglePartyButtonV2(html, actor)
         const isInPartyInventory = currentItem.getFlag(moduleId, 'inPartyInventory');
         const title = isInPartyInventory ? disableTitle : enableTitle;
         const activeClass = isInPartyInventory ? 'active' : '';
+        const giveTitle = game.i18n.localize(`${localizationID}.give-item-title`);
 
         // If already injected, just sync the active state and title rather than duplicating
         const existing = itemEl.querySelector('.party-inventory-module.item-toggle');
@@ -30,7 +32,6 @@ export function addTogglePartyButtonV2(html, actor)
         {
             existing.title = title;
             existing.classList.toggle('active', !!isInPartyInventory);
-            return;
         }
 
         // Find any existing edit control to insert after
@@ -46,60 +47,15 @@ export function addTogglePartyButtonV2(html, actor)
 
         if (!editControl && !tidyActionsCell && !dnd5eControlsDiv && !dnd5eContextMenuBtn && !tidyClassicControls) return;
 
-        const btn = document.createElement('a');
-        btn.title = title;
-        btn.innerHTML = '<i class="fas fa-users"></i>';
-        // Read fresh flag state at click time to avoid stale closure issues
-        btn.addEventListener('click', (e) =>
+        if (!existing)
         {
-            e.preventDefault();
-            e.stopPropagation();
-            const item = actor.items.get(currentItemId);
-            if (!item) return;
-            const current = item.getFlag(moduleId, 'inPartyInventory');
-            item.setFlag(moduleId, 'inPartyInventory', !current).then(() =>
-            {
-                game.modules.get(moduleId).api.openWindow();
-            });
-        });
-
-        if (editControl)
-        {
-            btn.className = `item-control party-inventory-module item-toggle ${activeClass}`;
-            editControl.insertAdjacentElement('afterend', btn);
-        }
-        else if (dnd5eControlsDiv)
-        {
-            btn.className = `unbutton config-button item-control item-action always-interactive party-inventory-module item-toggle ${activeClass}`;
-            const contextMenuBtn = dnd5eControlsDiv.querySelector('[data-context-menu]');
-            if (contextMenuBtn)
-                dnd5eControlsDiv.insertBefore(btn, contextMenuBtn);
-            else
-                dnd5eControlsDiv.appendChild(btn);
-        }
-        else if (dnd5eContextMenuBtn)
-        {
-            btn.className = `unbutton config-button item-control item-action always-interactive party-inventory-module item-toggle ${activeClass}`;
-            dnd5eContextMenuBtn.insertAdjacentElement('beforebegin', btn);
-        }
-        else if (tidyActionsCell)
-        {
-            btn.className = `tidy-table-button party-inventory-module item-toggle ${activeClass}`;
-            const contextMenuBtn = tidyActionsCell.querySelector('[data-action="showContextMenu"], a.tidy-table-button:has(.fa-ellipsis-vertical)');
-            if (contextMenuBtn)
-                tidyActionsCell.insertBefore(btn, contextMenuBtn);
-            else
-                tidyActionsCell.appendChild(btn);
-        }
-        else if (tidyClassicControls)
-        {
-            // Classic Tidy uses <button> elements; swap the <a> for a <button> to match
-            const classicBtn = document.createElement('button');
-            classicBtn.type = 'button';
-            classicBtn.title = title;
-            classicBtn.innerHTML = btn.innerHTML;
-            classicBtn.className = `item-list-button party-inventory-module item-toggle ${activeClass}`;
-            classicBtn.addEventListener('click', (e) =>
+            const btn = document.createElement('a');
+            btn.title = title;
+            btn.innerHTML = '<i class="fas fa-users"></i>';
+            btn.setAttribute('aria-label', title);
+            btn.dataset.tooltip = title;
+            // Read fresh flag state at click time to avoid stale closure issues
+            btn.addEventListener('click', (e) =>
             {
                 e.preventDefault();
                 e.stopPropagation();
@@ -111,14 +67,102 @@ export function addTogglePartyButtonV2(html, actor)
                     game.modules.get(moduleId).api.openWindow();
                 });
             });
-            const editBtn = tidyClassicControls.querySelector('button[title="Edit Item"]');
-            if (editBtn)
-                tidyClassicControls.insertBefore(classicBtn, editBtn);
-            else
-                tidyClassicControls.appendChild(classicBtn);
-            return; // skip the generic btn which isn't appended here
+
+            insertItemControl({
+                itemEl,
+                editControl,
+                tidyActionsCell,
+                dnd5eControlsDiv,
+                dnd5eContextMenuBtn,
+                tidyClassicControls,
+                button: btn,
+                activeClass,
+                kind: 'item-toggle'
+            });
         }
+
+        if (itemEl.querySelector('.party-inventory-module.item-give')) return;
+
+        const giveBtn = document.createElement('a');
+        giveBtn.title = giveTitle;
+        giveBtn.innerHTML = '<i class="fas fa-handshake-angle"></i>';
+        giveBtn.setAttribute('aria-label', giveTitle);
+        giveBtn.dataset.tooltip = giveTitle;
+        // Read fresh flag state at click time to avoid stale closure issues
+        giveBtn.addEventListener('click', (e) =>
+        {
+            e.preventDefault();
+            e.stopPropagation();
+            showGiveItemDialog(actor, currentItemId);
+        });
+
+        insertItemControl({
+            itemEl,
+            editControl,
+            tidyActionsCell,
+            dnd5eControlsDiv,
+            dnd5eContextMenuBtn,
+            tidyClassicControls,
+            button: giveBtn,
+            activeClass: '',
+            kind: 'item-give'
+        });
     });
+}
+
+function insertItemControl({ editControl, tidyActionsCell, dnd5eControlsDiv, dnd5eContextMenuBtn, tidyClassicControls, button, activeClass, kind })
+{
+    if (editControl)
+    {
+        button.className = `item-control party-inventory-module ${kind} ${activeClass}`;
+        const existingPartyControls = editControl.parentElement.querySelectorAll('.party-inventory-module');
+        const anchor = existingPartyControls[existingPartyControls.length - 1] ?? editControl;
+        anchor.insertAdjacentElement('afterend', button);
+    }
+    else if (dnd5eControlsDiv)
+    {
+        button.className = `unbutton config-button item-control item-action always-interactive party-inventory-module ${kind} ${activeClass}`;
+        const contextMenuBtn = dnd5eControlsDiv.querySelector('[data-context-menu]');
+        if (contextMenuBtn)
+            dnd5eControlsDiv.insertBefore(button, contextMenuBtn);
+        else
+            dnd5eControlsDiv.appendChild(button);
+    }
+    else if (dnd5eContextMenuBtn)
+    {
+        button.className = `unbutton config-button item-control item-action always-interactive party-inventory-module ${kind} ${activeClass}`;
+        dnd5eContextMenuBtn.insertAdjacentElement('beforebegin', button);
+    }
+    else if (tidyActionsCell)
+    {
+        button.className = `tidy-table-button party-inventory-module ${kind} ${activeClass}`;
+        const contextMenuBtn = tidyActionsCell.querySelector('[data-action="showContextMenu"], a.tidy-table-button:has(.fa-ellipsis-vertical)');
+        if (contextMenuBtn)
+            tidyActionsCell.insertBefore(button, contextMenuBtn);
+        else
+            tidyActionsCell.appendChild(button);
+    }
+    else if (tidyClassicControls)
+    {
+        const classicBtn = document.createElement('button');
+        classicBtn.type = 'button';
+        classicBtn.title = button.title;
+        classicBtn.innerHTML = button.innerHTML;
+        classicBtn.className = `item-list-button party-inventory-module ${kind} ${activeClass}`;
+        classicBtn.setAttribute('aria-label', button.getAttribute('aria-label') ?? button.title);
+        classicBtn.dataset.tooltip = button.dataset.tooltip ?? button.title;
+        classicBtn.addEventListener('click', (e) =>
+        {
+            e.preventDefault();
+            e.stopPropagation();
+            button.click();
+        });
+        const editBtn = tidyClassicControls.querySelector('button[title="Edit Item"]');
+        if (editBtn)
+            tidyClassicControls.insertBefore(classicBtn, editBtn);
+        else
+            tidyClassicControls.appendChild(classicBtn);
+    }
 }
 
 export function addTogglePartyButton(html, actor)
