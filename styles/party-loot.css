@@ -1,0 +1,494 @@
+.dnd5e.sheet.actor.character .inventory .item-controls {
+    flex: 0 0 86px !important;
+}
+
+/* Widen the controls column in the dnd5e v4 default sheet to accommodate the injected party inventory button */
+.dnd5e2 .items-section .item .item-controls:has(.party-loot-module) {
+    width: 90px !important;
+}
+
+/* Allow the Tidy 5e actions column to grow dynamically to fit injected buttons */
+.tidy5e-sheet .tidy-table-cell[data-tidy-column-key="actions"] {
+    --tidy-table-column-width: min-content !important;
+    white-space: nowrap;
+}
+
+/* Style the party inventory button in the classic Tidy 5e sheet controls */
+.tidy5e-sheet.classic .tidy5e-classic-controls button.party-loot-module {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: stretch;
+    background: none;
+    border: none;
+    padding: 0 2px;
+    cursor: pointer;
+    color: inherit;
+    font-size: inherit;
+}
+
+#party-loot {
+    min-width: 620px;
+    min-height: 420px;
+    --party-loot-panel: rgba(244, 239, 225, .82);
+    --party-loot-panel-strong: rgba(231, 222, 199, .9);
+    --party-loot-row: rgba(255, 255, 255, .46);
+    --party-loot-line: rgba(55, 42, 29, .18);
+    --party-loot-line-strong: rgba(55, 42, 29, .42);
+    --party-loot-text-muted: var(--color-text-dark-secondary);
+    --party-loot-accent: #7a2f23;
+    --party-loot-accent-contrast: #f3eee2;
+    --party-loot-control: rgba(30, 24, 18, .82);
+}
+
+#party-loot.party-loot--tidy {
+    --party-loot-panel: rgba(241, 245, 249, .9);
+    --party-loot-panel-strong: rgba(226, 232, 240, .96);
+    --party-loot-row: rgba(255, 255, 255, .72);
+    --party-loot-line: rgba(67, 76, 91, .24);
+    --party-loot-line-strong: rgba(67, 76, 91, .42);
+    --party-loot-text-muted: #5d6675;
+    --party-loot-accent: #2f5f7d;
+    --party-loot-accent-contrast: #f7fbff;
+    --party-loot-control: #2f4054;
+}
+
+#party-loot .window-content {
+    padding: 10px;
+}
+
+#party-loot .party-loot__form {
+    gap: 8px;
+    height: 100%;
+}
+
+#party-loot .party-loot__content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+#party-loot .item-owner-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#party-loot .party-loot__party-item {
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--party-loot-line);
+    background: var(--party-loot-row);
+}
+
+#party-loot .party-loot__party-item:nth-child(even) {
+    background: rgba(255, 255, 255, .28);
+}
+
+#party-loot .party-loot__party-item .item-name {
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+#party-loot .party-loot__party-item .item-name h4 {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#party-loot .party-loot__party-item-controls {
+    flex: 0 0 128px;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+#party-loot .party-loot__party-item-quantity-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    color: var(--party-loot-text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+#party-loot .party-item-distribute-quantity {
+    width: 42px;
+    height: 24px;
+    text-align: center;
+}
+
+#party-loot .party-item-distribute-evenly {
+    background: var(--party-loot-control);
+    color: var(--party-loot-accent-contrast);
+    border-radius: 4px;
+    flex: 0 0 26px;
+    line-height: 26px;
+    text-align: center;
+}
+
+#party-loot .party-item-distribute-evenly.disabled {
+    opacity: .45;
+}
+
+#party-loot .item-section {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--party-loot-line-strong);
+    border-radius: 5px;
+    background: var(--party-loot-panel);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .16);
+}
+
+#party-loot .party-loot__section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--party-loot-line-strong);
+    background: var(--party-loot-panel-strong);
+}
+
+#party-loot .party-loot__section-header>div {
+    min-width: 0;
+}
+
+#party-loot .party-loot__section-header h3 {
+    margin: 0;
+    line-height: 1.1;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+#party-loot.party-loot--dnd5e .party-loot__section-header h3 {
+    font-family: "Modesto Condensed", "Palatino Linotype", serif;
+    font-size: 18px;
+    letter-spacing: 0;
+}
+
+#party-loot .party-loot__section-header p {
+    margin: 2px 0 0;
+    color: var(--party-loot-text-muted);
+    font-size: 11px;
+}
+
+#party-loot .party-loot__section-header>i {
+    flex: 0 0 auto;
+    color: var(--party-loot-accent);
+    font-size: 18px;
+}
+
+#party-loot .item-section ul {
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+#party-loot .item-section li {
+    list-style: none;
+}
+
+#party-loot .party-loot__list .item:last-child {
+    border-bottom: 0;
+}
+
+#party-loot .party-loot__empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px;
+    color: var(--party-loot-text-muted);
+    font-style: italic;
+    text-align: center;
+}
+
+#party-loot .party-loot__empty-state--drop {
+    flex-direction: column;
+    min-height: 92px;
+    gap: 6px;
+    border: 1px dashed var(--party-loot-line-strong);
+    margin: 8px;
+    border-radius: 5px;
+}
+
+#party-loot .party-loot__empty-state--drop i {
+    color: var(--party-loot-accent);
+    font-size: 22px;
+}
+
+#party-loot .item-image {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--party-loot-line-strong);
+    border-radius: 4px;
+    background-size: cover;
+    background-position: center;
+    object-fit: cover;
+}
+
+#party-loot .party-loot__add-entry {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex: 0 0 auto;
+    height: 28px;
+    min-width: max-content;
+    width: auto;
+    padding: 0 9px;
+    border: 1px solid var(--party-loot-line-strong);
+    border-radius: 4px;
+    background: var(--party-loot-control);
+    color: var(--party-loot-accent-contrast);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.scratchpad .item-quantity-input {
+    width: 44px;
+    flex: 0 0 44px;
+    text-align: center;
+}
+
+.party-loot__source-preview {
+    flex: 1;
+    font-style: italic;
+    color: var(--color-text-dark-secondary);
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 6px;
+}
+
+.scratchpad .item-row {
+    align-items: center;
+    gap: 6px;
+    padding: 7px 8px;
+    border-bottom: 1px solid var(--party-loot-line);
+    background: var(--party-loot-row);
+}
+
+.scratchpad .item-delete,
+.scratchpad .item-split,
+.scratchpad .item-collapse,
+.scratchpad .item-distribute {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 26px;
+    height: 26px;
+    padding: 0;
+    border-radius: 4px;
+    background: var(--party-loot-control);
+    color: var(--party-loot-accent-contrast);
+}
+
+.scratchpad .item-split+.item-collapse {
+    padding: 0;
+}
+
+.scratchpad .item-name {
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding-right: 0;
+}
+
+.scratchpad .item-name input {
+    height: 26px;
+    min-width: 150px;
+}
+
+.scratchpad .item-type-select {
+    flex: 0 0 120px !important;
+    height: 26px;
+}
+
+.scratchpad textarea {
+    font-family: "Signika", serif;
+    font-size: 13px;
+    border: 1px solid #c9c7b8;
+    resize: none;
+}
+
+.party-loot__description-container {
+    padding: 0 8px 8px 48px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.party-loot__description-container p {
+    margin: 2px 0;
+}
+
+.party-loot__description-container .editor {
+    border: 1px solid var(--color-border-light-tertiary, #c9c7b8);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, .3);
+    overflow: hidden;
+}
+
+.party-loot__description-container .editor-content,
+.party-loot__description-container .ProseMirror {
+    min-height: 56px;
+    max-height: 120px;
+    overflow-y: auto;
+    padding: 6px;
+}
+
+#party-loot .editor-menu,
+#party-loot .editor-toolbar {
+    background: rgba(0, 0, 0, .04);
+    border-bottom: 1px solid var(--party-loot-line);
+}
+
+.party-loot__footnote {
+    padding: 0 8px 8px 48px;
+    font-size: 12px;
+}
+
+.party-loot__footnote>* {
+    margin-right: 15px;
+    white-space: nowrap;
+}
+
+.party-loot__currency {
+    flex: 0;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--party-loot-line-strong);
+    border-radius: 5px;
+    background: var(--party-loot-panel-strong);
+}
+
+.party-loot__currency-decal {
+    align-self: center;
+    text-align: center;
+    flex: 0 0 28px;
+    color: var(--party-loot-accent);
+    font-size: 18px;
+}
+
+.party-loot__currency-row {
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.party-loot__currency-row a {
+    background: var(--party-loot-control);
+    color: var(--party-loot-accent-contrast);
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 28px;
+    flex: 0 0 28px;
+    text-align: center;
+    margin-right: 0;
+}
+
+.party-loot__currency-entry {
+    align-items: center;
+    background: rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--party-loot-line);
+    border-radius: 4px;
+    padding: 0 6px 0 0;
+    margin-right: 0;
+    line-height: 28px;
+    flex: 1 0 74px;
+}
+
+.party-loot__currency-entry input {
+    height: 26px;
+    border: 0;
+    background: transparent;
+    text-align: right;
+}
+
+#party-loot.party-loot--tidy input,
+#party-loot.party-loot--tidy select {
+    border-radius: 4px;
+}
+
+#party-loot.party-loot--tidy .party-loot__section,
+#party-loot.party-loot--tidy .party-loot__currency {
+    box-shadow: none;
+}
+
+#party-loot-take-currency input,
+#party-loot-split-currency input {
+    background: none;
+    border: 1px solid transparent;
+}
+
+#party-loot-take-currency button {
+    margin-top: 10px;
+}
+
+#party-loot-split-currency .party-loot__currency-row {
+    margin-bottom: 10px;
+}
+
+#party-loot-split-currency .party-loot__actor-included {
+    flex-basis: 30px;
+}
+
+#party-loot-split-currency .party-loot__actor-name {
+    flex: 1 0 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#party-loot-split-currency .party-loot__reveal-disabled {
+    text-align: right;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: var(--color-text-dark-5);
+}
+
+.party-loot-distribution-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.party-loot-distribution-form p {
+    margin: 0 0 4px;
+    color: var(--color-text-dark-secondary);
+}
+
+.party-loot-distribution-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 72px;
+    align-items: center;
+    gap: 8px;
+}
+
+.party-loot-distribution-row label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.party-loot-distribution-row input {
+    text-align: center;
+}
+
+

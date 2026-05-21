@@ -20,7 +20,7 @@ export async function showGiveItemDialog(actor, itemId)
         .join('');
 
     const content = `
-        <form class="party-inventory-give-form">
+        <form class="party-loot-give-form">
             <div class="form-group">
                 <label>${game.i18n.localize(`${localizationID}.give-recipient`)}</label>
                 <select name="recipient">${options}</select>
@@ -93,6 +93,15 @@ export function registerGiveItemSocket()
             });
         }
 
+        if (packet?.type === 'distribute-item' && game.user.isGM)
+        {
+            const result = await completeItemDistribution(packet.data);
+            game.socket.emit(`module.${moduleId}`, {
+                type: 'distribute-item-result',
+                data: result
+            });
+        }
+
         if (packet?.type === 'transfer-item-result' && packet.data?.requestingUserId === game.user.id)
         {
             if (packet.data.ok)
@@ -107,6 +116,60 @@ export function registerGiveItemSocket()
                 ui.notifications.error(packet.data.message);
             }
         }
+
+        if (packet?.type === 'distribute-item-result' && packet.data?.requestingUserId === game.user.id)
+        {
+            if (packet.data.ok)
+            {
+                ui.notifications.info(game.i18n.format(`${localizationID}.distribute-party-item-complete`, {
+                    quantity: packet.data.quantity,
+                    item: packet.data.itemName,
+                    count: packet.data.recipientCount
+                }));
+            } else
+            {
+                ui.notifications.error(packet.data.message);
+            }
+        }
+    });
+}
+
+export function requestItemDistribution(data)
+{
+    const payload = {
+        ...data,
+        requestingUserId: game.user.id
+    };
+
+    if (game.user.isGM)
+    {
+        completeItemDistribution(payload).then(result =>
+        {
+            if (result.ok)
+            {
+                ui.notifications.info(game.i18n.format(`${localizationID}.distribute-party-item-complete`, {
+                    quantity: result.quantity,
+                    item: result.itemName,
+                    count: result.recipientCount
+                }));
+            } else
+            {
+                ui.notifications.error(result.message);
+            }
+        });
+        return;
+    }
+
+    const gmAvailable = !!game.users.find(u => u.isGM && u.active);
+    if (!gmAvailable)
+    {
+        ui.notifications.warn(game.i18n.localize(`${localizationID}.give-no-gm`));
+        return;
+    }
+
+    game.socket.emit(`module.${moduleId}`, {
+        type: 'distribute-item',
+        data: payload
     });
 }
 
@@ -213,6 +276,72 @@ async function completeItemTransfer({ sourceActorId, targetActorId, itemId, quan
     };
 }
 
+async function completeItemDistribution({ sourceActorId, itemId, allocations, requestingUserId })
+{
+    const requester = game.users.get(requestingUserId);
+    const sourceActor = game.actors.get(sourceActorId);
+    const item = sourceActor?.items.get(itemId);
+
+    if (!requester || !sourceActor || !item)
+    {
+        return failed(requestingUserId, game.i18n.localize(`${localizationID}.give-missing-data`));
+    }
+    if (!sourceActor.testUserPermission(requester, 'OWNER'))
+    {
+        return failed(requestingUserId, game.i18n.localize(`${localizationID}.give-no-permission`));
+    }
+    if (!physicalTypes.has(item.type))
+    {
+        return failed(requestingUserId, game.i18n.localize(`${localizationID}.give-invalid-item`));
+    }
+
+    const recipients = getRecipients(sourceActor);
+    if (!recipients.length)
+    {
+        return failed(requestingUserId, game.i18n.localize(`${localizationID}.give-no-recipients`));
+    }
+
+    const currentQuantity = Math.max(1, Number(item.system?.quantity ?? 1));
+    const recipientIds = new Set(recipients.map(a => a.id));
+    const normalizedAllocations = Object.entries(allocations ?? {})
+        .map(([actorId, quantity]) => ({ actorId, quantity: Math.floor(Number(quantity)) }))
+        .filter(a => recipientIds.has(a.actorId) && Number.isInteger(a.quantity) && a.quantity > 0);
+    const totalQuantity = normalizedAllocations.reduce((sum, a) => sum + a.quantity, 0);
+
+    if (totalQuantity < 1 || totalQuantity > currentQuantity)
+    {
+        return failed(requestingUserId, game.i18n.format(`${localizationID}.distribute-party-item-invalid-quantity`, {
+            min: 1,
+            max: currentQuantity
+        }));
+    }
+
+    for (const allocation of normalizedAllocations)
+    {
+        const recipient = game.actors.get(allocation.actorId);
+        await addItemQuantity(recipient, item, allocation.quantity);
+    }
+
+    const remaining = currentQuantity - totalQuantity;
+    if (remaining <= 0)
+    {
+        await item.delete();
+    } else
+    {
+        await item.update({ 'system.quantity': remaining });
+    }
+
+    whisperDistributionLog(sourceActor, normalizedAllocations, item.name, totalQuantity, requester);
+
+    return {
+        ok: true,
+        requestingUserId,
+        quantity: totalQuantity,
+        itemName: item.name,
+        recipientCount: normalizedAllocations.length
+    };
+}
+
 function getRecipients(currentActor)
 {
     return game.actors
@@ -223,6 +352,21 @@ function getRecipients(currentActor)
 function failed(requestingUserId, message)
 {
     return { ok: false, requestingUserId, message };
+}
+
+async function addItemQuantity(actor, sourceItem, quantity)
+{
+    const existing = actor.items.find(i => i.name === sourceItem.name && i.type === sourceItem.type && Number.isFinite(Number(i.system?.quantity)));
+    if (existing)
+    {
+        await existing.update({ 'system.quantity': Number(existing.system.quantity ?? 0) + quantity });
+        return;
+    }
+
+    const itemData = sourceItem.toObject();
+    delete itemData._id;
+    foundry.utils.setProperty(itemData, 'system.quantity', quantity);
+    await actor.createEmbeddedDocuments('Item', [itemData]);
 }
 
 function whisperTransferLog(sourceActor, targetActor, itemName, quantity, requester)
@@ -238,6 +382,29 @@ function whisperTransferLog(sourceActor, targetActor, itemName, quantity, reques
             recipient: targetActor.name,
             quantity,
             item: itemName
+        }),
+        whisper,
+        speaker: ChatMessage.getSpeaker({ actor: sourceActor })
+    });
+}
+
+function whisperDistributionLog(sourceActor, allocations, itemName, totalQuantity, requester)
+{
+    const whisper = [
+        ...game.users.filter(u => u.isGM).map(u => u.id),
+        requester?.id
+    ].filter(Boolean);
+    const allocationText = allocations
+        .map(({ actorId, quantity }) => `${quantity} to ${game.actors.get(actorId)?.name ?? 'Unknown'}`)
+        .join(', ');
+
+    ChatMessage.create({
+        content: game.i18n.format(`${localizationID}.distribute-party-item-chat-log`, {
+            source: sourceActor.name,
+            quantity: totalQuantity,
+            item: itemName,
+            count: allocations.length,
+            allocations: allocationText
         }),
         whisper,
         speaker: ChatMessage.getSpeaker({ actor: sourceActor })
@@ -272,3 +439,4 @@ function legacyDialog(content, itemName)
         }).render(true);
     });
 }
+

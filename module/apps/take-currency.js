@@ -37,3 +37,4 @@ export class TakeCurrency extends FormApplication {
     }
 
 }
+

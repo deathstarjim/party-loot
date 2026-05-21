@@ -2,11 +2,12 @@
 
 A party inventory sheet and loot management module for Foundry VTT v14 and D&D 5e. Supports the default dnd5e v4 character sheet, Tidy 5e Sheet v2, and Tidy 5e Classic.
 
-This module is a heavily updated fork of the original Party Inventory by teroparvinen: https://github.com/teroparvinen/foundry-party-inventory
+This module is a heavily updated fork of teroparvinen's original shared inventory module.
 
 ## Features
 
 - Party inventory window showing all items flagged as party loot across all player characters
+- Quantity control for distributing part of a flagged character item stack evenly to the other player characters
 - Compatible with the **default D&D 5e (dnd5e v4 / 5.3.0) character sheet**
 - Compatible with **Tidy 5e Sheet v2** and **Tidy 5e Classic**
 - "Add to Party Inventory" toggle button on item rows in the character sheet — limited to physical items (weapons, equipment, consumables, tools, loot, containers)
@@ -41,6 +42,8 @@ Any item on a character sheet can be toggled to be visible in the party inventor
 - **Tidy 5e Classic**: In the item controls column
 
 The adjacent **Give Item** button opens a recipient and quantity dialog. Players can initiate transfers from their own character sheets; the logged-in GM client performs the inventory update through the module socket.
+
+In the Party Inventory window, a flagged stack can also be distributed evenly from its row. Set the quantity to distribute, then use the distribute button; each other player character receives an equal share and the owner keeps any remainder.
 
 ### Scratchpad
 
@@ -77,10 +80,11 @@ Technically, modifying the scratchpad requires message passing to a Gamemaster u
 
 The module exposes an API for opening the window from a macro:
 
-`game.modules.get('party-inventory-foundry-v13').api.openWindow()`
+`game.modules.get('party-loot').api.openWindow()`
 
 ## License
 
 This Foundry VTT module is licensed under a Creative Commons Attribution 4.0 International License.
 
 This work is licensed under the Foundry Virtual Tabletop EULA - Limited License Agreement for module development.
+

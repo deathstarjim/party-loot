@@ -7,7 +7,7 @@
             "name": "Jim Piller"
         }
     ],
-    "version": "14.0.0",
+    "version": "14.0.6",
     "compatibility": {
         "minimum": 13,
         "verified": 14
@@ -21,10 +21,10 @@
         ]
     },
     "esmodules": [
-        "./module/party-inventory.js"
+        "./module/party-loot.js"
     ],
     "styles": [
-        "styles/party-inventory.css"
+        "styles/party-loot.css"
     ],
     "languages": [
         {
@@ -34,8 +34,9 @@
         }
     ],
     "socket": true,
-    "url": "https://github.com/deathstarjim/party-inventory-foundry-v13",
-    "bugs": "https://github.com/deathstarjim/party-inventory-foundry-v13/issues",
-    "manifest": "https://github.com/deathstarjim/party-inventory-foundry-v13/releases/latest/download/module.json",
-    "download": "https://github.com/deathstarjim/party-inventory-foundry-v13/releases/download/13.2.0/module.zip"
+    "url": "https://github.com/deathstarjim/party-loot",
+    "bugs": "https://github.com/deathstarjim/party-loot/issues",
+    "manifest": "https://github.com/deathstarjim/party-loot/releases/latest/download/module.json",
+    "download": "https://github.com/deathstarjim/party-loot/releases/download/13.2.0/module.zip"
 }
+

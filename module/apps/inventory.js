@@ -4,8 +4,9 @@ import { Scratchpad } from '../scratchpad.js';
 import { SplitCurrency } from './split-currency.js';
 import { TakeCurrency } from './take-currency.js';
 import { DistributeItem } from './distribute-item.js';
+import { requestItemDistribution } from './give-item.js';
 
-export class PartyInventory extends FormApplication
+export class PartyLoot extends FormApplication
 {
     static instance = null;
 
@@ -20,7 +21,7 @@ export class PartyInventory extends FormApplication
             resizable: true,
             editable: true,
             id: moduleId,
-            template: `modules/${moduleId}/templates/party-inventory.hbs`,
+            template: `modules/${moduleId}/templates/party-loot.hbs`,
             title: `${localizationID}.window-title`,
             userId: game.userId,
             closeOnSubmit: false,
@@ -42,7 +43,7 @@ export class PartyInventory extends FormApplication
     {
         if (!this.instance)
         {
-            this.instance = new PartyInventory();
+            this.instance = new PartyLoot();
         }
 
         if (!this.instance.rendered)
@@ -134,14 +135,26 @@ export class PartyInventory extends FormApplication
             .actors
             .filter(a => a.hasPlayerOwner)
             .flatMap(a => a.items.contents)
-            .filter(i => i.getFlag(moduleId, 'inPartyInventory'))
+            .filter(i => i.getFlag(moduleId, 'inPartyLoot'))
 
         items.sort((a, b) => a.name.localeCompare(b.name));
 
         this._items = items;
 
-        items.forEach(i => { i.isStack = i.system.quantity > 1 });
-        items.forEach(i => { i.charName = i.actor.name.split(' ')[0] });
+        const partyActors = game.actors.filter(a => a.hasPlayerOwner && a.type === 'character');
+        items.forEach(i =>
+        {
+            const quantity = Math.max(1, Number(i.system.quantity ?? 1));
+            const recipientCount = partyActors.filter(a => a.id !== i.actor.id).length;
+            i.isStack = quantity > 1;
+            i.actorId = i.actor.id;
+            i.actorName = i.actor.name;
+            i.partyQuantity = quantity;
+            i.distributionQuantity = Math.min(quantity, recipientCount || quantity);
+            i.canDistributeEvenly = recipientCount > 0 && quantity >= recipientCount;
+            i.distributionRecipientCount = recipientCount;
+        });
+        items.forEach(i => { i.charName = i.actor.name });
 
         // Only expose valid dnd5e item types that have proper system data (avoids crashing sheets with "base" etc.)
         const dnd5eItemTypes = ["weapon", "equipment", "consumable", "tool", "loot", "container"];
@@ -203,6 +216,8 @@ export class PartyInventory extends FormApplication
             descriptionPlaceholder: game.i18n.localize(`${localizationID}.description-placeholder`),
             hasSourceData: game.i18n.localize(`${localizationID}.item-has-source-data`),
             hasCustomDescription: game.i18n.localize(`${localizationID}.item-has-custom-description`),
+            distributionQuantity: game.i18n.localize(`${localizationID}.distribution-quantity`),
+            distributeEvenly: game.i18n.localize(`${localizationID}.distribute-party-item-evenly`),
         };
 
         return { items, typeLabels, scratchpadItems, currency, isGM, labels };
@@ -233,6 +248,9 @@ export class PartyInventory extends FormApplication
         super.activateListeners(html);
 
         const self = this;
+        const tidyActive = game.modules.get('tidy5e-sheet')?.active || game.modules.get('tidy5e-sheet5e')?.active;
+        this.element.toggleClass('party-loot--tidy', !!tidyActive);
+        this.element.toggleClass('party-loot--dnd5e', !tidyActive);
 
         html.find('.currency-input').change(this._onChangeCurrencyDelta.bind(this));
 
@@ -403,6 +421,26 @@ export class PartyInventory extends FormApplication
                     distApp.render(true);
                     break;
                 }
+            case 'distribute-party-item':
+                {
+                    const li = clickedElement.parents('[data-item-id]');
+                    const sourceItem = this._items.find(i => i.id === itemId && i.actor?.id === li.data('actor-id'));
+                    if (!sourceItem) break;
+
+                    const maxQuantity = Math.max(1, Number(sourceItem.system?.quantity ?? 1));
+                    const recipients = game.actors
+                        .filter(a => a.hasPlayerOwner && a.type === 'character' && a.id !== sourceItem.actor.id)
+                        .sort((a, b) => a.name.localeCompare(b.name));
+
+                    if (!recipients.length)
+                    {
+                        ui.notifications.warn(game.i18n.localize(`${localizationID}.give-no-recipients`));
+                        break;
+                    }
+
+                    this._showPartyItemDistributionDialog(sourceItem, recipients, maxQuantity);
+                    break;
+                }
             case 'take-currency':
                 const takeApp = new TakeCurrency();
                 takeApp.render(true);
@@ -412,6 +450,97 @@ export class PartyInventory extends FormApplication
                 splitApp.render(true);
                 break;
         }
+    }
+
+    async _showPartyItemDistributionDialog(item, recipients, maxQuantity)
+    {
+        const defaultQuantity = Math.floor(maxQuantity / recipients.length) || 0;
+        const rows = recipients.map(actor => `
+            <div class="party-loot-distribution-row">
+                <label for="party-loot-distribution-${actor.id}">${foundry.utils.escapeHTML(actor.name)}</label>
+                <input id="party-loot-distribution-${actor.id}" type="number" name="${actor.id}"
+                    value="${defaultQuantity}" min="0" max="${maxQuantity}" step="1">
+            </div>`).join('');
+        const content = `
+            <form class="party-loot-distribution-form">
+                <p>${game.i18n.format(`${localizationID}.distribute-party-item-dialog-hint`, {
+            count: maxQuantity,
+            item: foundry.utils.escapeHTML(item.name)
+        })}</p>
+                ${rows}
+            </form>`;
+
+        const DialogV2 = foundry.applications?.api?.DialogV2;
+        const result = DialogV2
+            ? await DialogV2.wait({
+                window: { title: game.i18n.format(`${localizationID}.distribute-party-item-dialog-title`, { item: item.name }) },
+                content,
+                buttons: [
+                    {
+                        action: 'distribute',
+                        label: game.i18n.localize(`${localizationID}.distribute-item`),
+                        icon: 'fas fa-share',
+                        default: true,
+                        callback: (_event, _button, dialog) =>
+                        {
+                            return new foundry.applications.ux.FormDataExtended(dialog.element.querySelector('form')).object;
+                        }
+                    },
+                    { action: 'cancel', label: game.i18n.localize('Cancel'), icon: 'fas fa-times' }
+                ],
+                rejectClose: false
+            })
+            : await this._legacyDistributionDialog(content, item.name);
+
+        if (!result || result === 'cancel') return;
+
+        const allocations = Object.fromEntries(
+            Object.entries(result).map(([actorId, quantity]) => [actorId, Math.floor(Number(quantity)) || 0])
+        );
+        const total = Object.values(allocations).reduce((sum, quantity) => sum + quantity, 0);
+        if (total < 1 || total > maxQuantity)
+        {
+            ui.notifications.warn(game.i18n.format(`${localizationID}.distribute-party-item-invalid-quantity`, {
+                min: 1,
+                max: maxQuantity
+            }));
+            return;
+        }
+
+        requestItemDistribution({
+            sourceActorId: item.actor.id,
+            itemId: item.id,
+            allocations
+        });
+    }
+
+    _legacyDistributionDialog(content, itemName)
+    {
+        return new Promise(resolve =>
+        {
+            new Dialog({
+                title: game.i18n.format(`${localizationID}.distribute-party-item-dialog-title`, { item: itemName }),
+                content,
+                buttons: {
+                    distribute: {
+                        icon: '<i class="fas fa-share"></i>',
+                        label: game.i18n.localize(`${localizationID}.distribute-item`),
+                        callback: html =>
+                        {
+                            const FormDataClass = foundry.applications?.ux?.FormDataExtended ?? FormDataExtended;
+                            resolve(new FormDataClass(html[0].querySelector('form')).object);
+                        }
+                    },
+                    cancel: {
+                        icon: '<i class="fas fa-times"></i>',
+                        label: game.i18n.localize('Cancel'),
+                        callback: () => resolve(null)
+                    }
+                },
+                default: 'distribute',
+                close: () => resolve(null)
+            }).render(true);
+        });
     }
 
     _onEditImage(event)
@@ -579,3 +708,5 @@ export class PartyInventory extends FormApplication
         return true;
     }
 }
+
+

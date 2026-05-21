@@ -4,14 +4,14 @@
             style="border: none; object-fit: contain; flex: 0 0 36px;" />
         <div>
             <strong>{{item.name}}</strong>
-            &mdash; {{localize "PARTY-INVENTORY.total-quantity"}}: <strong>{{quantity}}</strong>
+            &mdash; {{localize "PARTY-LOOT.total-quantity"}}: <strong>{{quantity}}</strong>
         </div>
     </div>
 
     <div class="distribute-actors">
         {{#each actors as |actor|}}
-        <div class="party-inventory__currency-row flexrow" style="align-items: center; gap: 8px; padding: 4px 0;">
-            <div class="party-inventory__actor-name flex1">{{actor.name}}</div>
+        <div class="party-loot__currency-row flexrow" style="align-items: center; gap: 8px; padding: 4px 0;">
+            <div class="party-loot__actor-name flex1">{{actor.name}}</div>
             <input class="distribute-qty-input" type="number" name="actors.{{actor.id}}" value="{{actor.quantity}}"
                 min="0" style="width: 60px; text-align: center;" />
         </div>
@@ -20,11 +20,11 @@
 
     <div class="distribute-footer flexrow"
         style="padding: 8px 0 4px; font-size: 12px; color: var(--color-text-dark-secondary);">
-        <span>{{localize "PARTY-INVENTORY.distribute-remainder"}}: <strong
+        <span>{{localize "PARTY-LOOT.distribute-remainder"}}: <strong
                 class="distribute-remainder-value">—</strong></span>
     </div>
 
     <button type="submit" class="flex0">
-        <i class="fas fa-share"></i> {{localize "PARTY-INVENTORY.distribute-item"}}
+        <i class="fas fa-share"></i> {{localize "PARTY-LOOT.distribute-item"}}
     </button>
 </form>

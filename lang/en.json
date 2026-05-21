@@ -1,7 +1,7 @@
 {
-    "PARTY-INVENTORY": {
-        "button-title": "Party Inventory",
-        "window-title": "Party Inventory",
+    "PARTY-LOOT": {
+        "button-title": "Party Loot",
+        "window-title": "Party Loot",
         "enable-item-title": "Add to Party Inventory",
         "disable-item-title": "Remove from Party Inventory",
         "give-item-title": "Give Item",
@@ -19,7 +19,7 @@
         "give-invalid-item": "That item type cannot be given.",
         "give-complete": "Gave {quantity}x {item} to {recipient}.",
         "give-chat-log": "{source} gave {quantity}x {item} to {recipient}.",
-        "is-in-party-inventory": "In Party Inventory",
+        "is-in-party-loot": "In Party Loot",
         "add-new": "Add New Entry",
         "delete-item": "Delete item",
         "split-item": "Split into two",
@@ -27,10 +27,21 @@
         "name-placeholder": "New item",
         "description-placeholder": "Description",
         "inventory-list-title": "Shared items in character inventories",
+        "inventory-list-hint": "Items marked as Party Loot on character sheets",
+        "no-shared-items": "No character items have been marked as Party Loot yet.",
         "scratchpad-title": "Items requiring distribution to characters",
+        "scratchpad-hint": "Stage loose loot here before giving it to characters",
+        "no-scratchpad-items": "Drop loot here or add a new entry.",
         "item-quantity": "Quantity",
         "item-has-source-data": "Has additional game data",
         "item-has-custom-description": ", using given description",
+        "distribution-quantity": "Qty",
+        "distribute-party-item-evenly": "Distribute to other player characters",
+        "distribute-party-item-dialog-title": "Distribute: {item}",
+        "distribute-party-item-dialog-hint": "Assign up to {count}x {item}. Leave a character at 0 to skip them.",
+        "distribute-party-item-invalid-quantity": "Assign a total quantity from {min} to {max}.",
+        "distribute-party-item-complete": "Distributed {quantity}x {item} to {count} character(s).",
+        "distribute-party-item-chat-log": "{source} distributed {quantity}x {item}: {allocations}.",
         "distribute-item": "Distribute to Party",
         "distribute-item-title": "Distribute item to party members",
         "total-quantity": "Total",
@@ -52,3 +63,4 @@
         "took-currency-notification": "{name} took {currency} from the party inventory"
     }
 }
+

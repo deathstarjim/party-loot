@@ -27,7 +27,7 @@ export class SplitCurrency extends FormApplication {
     showNonSplitting = false
 
     activateListeners(html) {
-        html.find('.party-inventory__actor-included').on('change', function(event) {
+        html.find('.party-loot__actor-included').on('change', function(event) {
             Currency.requestActorState(this.dataset.actorId, !this.checked);
         });
         html.find('[data-action]').click(this._handleButtonClick.bind(this));
@@ -79,3 +79,4 @@ export class SplitCurrency extends FormApplication {
     }
 
 }
+

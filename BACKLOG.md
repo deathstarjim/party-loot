@@ -40,6 +40,10 @@ Ensure the module is fully usable by players with visual impairments or motor di
 **Tasks:**
 - Add `aria-label` to all icon-only buttons (split, distribute, collapse, delete, take-currency, split-currency, party-toggle)
 - Add `role` and `aria-pressed` to the per-item party toggle button to reflect on/off state
+- Make the character sheet **Add to Party Inventory** and **Give Item** buttons reachable and operable by keyboard
+- When keyboard focus is on Add to Party Inventory, pressing Enter should toggle the item and provide clear feedback that the item was added to or removed from Party Inventory
+- When keyboard focus is on Give Item, pressing Enter should open the give dialog
+- Add accessible labels/descriptions in the Give Item dialog for the recipient selector, quantity input, submit button, and cancel button so screen readers announce them clearly
 - Keyboard navigation throughout all dialogs (Tab, Enter, Escape, Arrow keys)
 - Screen reader live-region announcements when items are added to or removed from the party inventory
 - Focus management: return focus to the trigger element when a dialog closes
@@ -59,8 +63,17 @@ Quality-of-life operations for managing many scratchpad items at once.
 
 ---
 
+### 5. Give Inventory Items to NPCs
+**Priority:** Medium
+
+Flesh out a flow for giving items from a PC inventory to GM-approved NPCs.
+
+---
+
 ## Completed
 
 - [x] v13 → v14 Foundry compatibility (FA7 icon renames, dnd5e v5 sheet selectors, module.json verified bump)
-- [x] Module renamed from `party-inventory-foundry-v13` to `party-inventory`
+- [x] Module renamed to `party-loot`
 - [x] PC-to-PC direct item transfer from character sheet inventory rows
+- [x] Even distribution of flagged character item stacks from the main Party Inventory window
+

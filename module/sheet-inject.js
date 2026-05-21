@@ -21,17 +21,17 @@ export function addTogglePartyButtonV2(html, actor)
         if (!currentItem) return;
         if (!physicalTypes.has(currentItem.type)) return;
 
-        const isInPartyInventory = currentItem.getFlag(moduleId, 'inPartyInventory');
-        const title = isInPartyInventory ? disableTitle : enableTitle;
-        const activeClass = isInPartyInventory ? 'active' : '';
+        const isInPartyLoot = currentItem.getFlag(moduleId, 'inPartyLoot');
+        const title = isInPartyLoot ? disableTitle : enableTitle;
+        const activeClass = isInPartyLoot ? 'active' : '';
         const giveTitle = game.i18n.localize(`${localizationID}.give-item-title`);
 
         // If already injected, just sync the active state and title rather than duplicating
-        const existing = itemEl.querySelector('.party-inventory-module.item-toggle');
+        const existing = itemEl.querySelector('.party-loot-module.item-toggle');
         if (existing)
         {
             existing.title = title;
-            existing.classList.toggle('active', !!isInPartyInventory);
+            existing.classList.toggle('active', !!isInPartyLoot);
         }
 
         // Find any existing edit control to insert after
@@ -61,8 +61,8 @@ export function addTogglePartyButtonV2(html, actor)
                 e.stopPropagation();
                 const item = actor.items.get(currentItemId);
                 if (!item) return;
-                const current = item.getFlag(moduleId, 'inPartyInventory');
-                item.setFlag(moduleId, 'inPartyInventory', !current).then(() =>
+                const current = item.getFlag(moduleId, 'inPartyLoot');
+                item.setFlag(moduleId, 'inPartyLoot', !current).then(() =>
                 {
                     game.modules.get(moduleId).api.openWindow();
                 });
@@ -81,7 +81,7 @@ export function addTogglePartyButtonV2(html, actor)
             });
         }
 
-        if (itemEl.querySelector('.party-inventory-module.item-give')) return;
+        if (itemEl.querySelector('.party-loot-module.item-give')) return;
 
         const giveBtn = document.createElement('a');
         giveBtn.title = giveTitle;
@@ -114,14 +114,14 @@ function insertItemControl({ editControl, tidyActionsCell, dnd5eControlsDiv, dnd
 {
     if (editControl)
     {
-        button.className = `item-control party-inventory-module ${kind} ${activeClass}`;
-        const existingPartyControls = editControl.parentElement.querySelectorAll('.party-inventory-module');
+        button.className = `item-control party-loot-module ${kind} ${activeClass}`;
+        const existingPartyControls = editControl.parentElement.querySelectorAll('.party-loot-module');
         const anchor = existingPartyControls[existingPartyControls.length - 1] ?? editControl;
         anchor.insertAdjacentElement('afterend', button);
     }
     else if (dnd5eControlsDiv)
     {
-        button.className = `unbutton config-button item-control item-action always-interactive party-inventory-module ${kind} ${activeClass}`;
+        button.className = `unbutton config-button item-control item-action always-interactive party-loot-module ${kind} ${activeClass}`;
         const contextMenuBtn = dnd5eControlsDiv.querySelector('[data-context-menu]');
         if (contextMenuBtn)
             dnd5eControlsDiv.insertBefore(button, contextMenuBtn);
@@ -130,12 +130,12 @@ function insertItemControl({ editControl, tidyActionsCell, dnd5eControlsDiv, dnd
     }
     else if (dnd5eContextMenuBtn)
     {
-        button.className = `unbutton config-button item-control item-action always-interactive party-inventory-module ${kind} ${activeClass}`;
+        button.className = `unbutton config-button item-control item-action always-interactive party-loot-module ${kind} ${activeClass}`;
         dnd5eContextMenuBtn.insertAdjacentElement('beforebegin', button);
     }
     else if (tidyActionsCell)
     {
-        button.className = `tidy-table-button party-inventory-module ${kind} ${activeClass}`;
+        button.className = `tidy-table-button party-loot-module ${kind} ${activeClass}`;
         const contextMenuBtn = tidyActionsCell.querySelector('[data-action="showContextMenu"], a.tidy-table-button:has(.fa-ellipsis-vertical)');
         if (contextMenuBtn)
             tidyActionsCell.insertBefore(button, contextMenuBtn);
@@ -148,7 +148,7 @@ function insertItemControl({ editControl, tidyActionsCell, dnd5eControlsDiv, dnd
         classicBtn.type = 'button';
         classicBtn.title = button.title;
         classicBtn.innerHTML = button.innerHTML;
-        classicBtn.className = `item-list-button party-inventory-module ${kind} ${activeClass}`;
+        classicBtn.className = `item-list-button party-loot-module ${kind} ${activeClass}`;
         classicBtn.setAttribute('aria-label', button.getAttribute('aria-label') ?? button.title);
         classicBtn.dataset.tooltip = button.dataset.tooltip ?? button.title;
         classicBtn.addEventListener('click', (e) =>
@@ -174,20 +174,20 @@ export function addTogglePartyButton(html, actor)
     {
         const currentItemId = this.closest(".item").dataset.itemId;
         const currentItem = actor.items.find(item => item.id === currentItemId);
-        const isInPartyInventory = currentItem.getFlag(moduleId, 'inPartyInventory');
+        const isInPartyLoot = currentItem.getFlag(moduleId, 'inPartyLoot');
 
-        const title = isInPartyInventory ? disableTitle : enableTitle;
-        const active = isInPartyInventory ? 'active' : '';
+        const title = isInPartyLoot ? disableTitle : enableTitle;
+        const active = isInPartyLoot ? 'active' : '';
 
         $(`
-            <a class="item-control party-inventory-module item-toggle ${active}" title="${title}">
+            <a class="item-control party-loot-module item-toggle ${active}" title="${title}">
             <i class="fas fa-users"></i>
             </a>
         `).insertAfter(this);
 
         $(this.nextElementSibling).on('click', function ()
         {
-            currentItem.setFlag(moduleId, 'inPartyInventory', !isInPartyInventory);
+            currentItem.setFlag(moduleId, 'inPartyLoot', !isInPartyLoot);
         });
     });
 }
@@ -203,13 +203,13 @@ export function addTogglePartyButtonTidy(html, actor)
     {
         const currentItemId = this.closest(".item").dataset.itemId;
         const currentItem = actor.items.find(item => item.id === currentItemId);
-        const isInPartyInventory = currentItem.getFlag(moduleId, 'inPartyInventory');
+        const isInPartyLoot = currentItem.getFlag(moduleId, 'inPartyLoot');
 
-        const title = isInPartyInventory ? disableTitle : enableTitle;
-        const active = isInPartyInventory ? 'active' : '';
+        const title = isInPartyLoot ? disableTitle : enableTitle;
+        const active = isInPartyLoot ? 'active' : '';
 
         $(`
-            <a class="item-control party-inventory-module" title="${title}">
+            <a class="item-control party-loot-module" title="${title}">
                 <i class="fas fa-users"></i>
                 <span class="control-label">${title}</span>
             </a>
@@ -217,22 +217,22 @@ export function addTogglePartyButtonTidy(html, actor)
 
         $(this.nextElementSibling).on('click', function ()
         {
-            currentItem.setFlag(moduleId, 'inPartyInventory', !isInPartyInventory);
+            currentItem.setFlag(moduleId, 'inPartyLoot', !isInPartyLoot);
         });
     });
 }
 
 export function addGroupInventoryIndicatorTidy(html, actor)
 {
-    const title = game.i18n.localize(`${localizationID}.is-in-party-inventory`);
+    const title = game.i18n.localize(`${localizationID}.is-in-party-loot`);
 
     html.find(".inventory .item .item-name").each(function ()
     {
         const currentItemId = this.closest(".item").dataset.itemId;
         const currentItem = actor.items.find(item => item.id === currentItemId);
-        const isInPartyInventory = currentItem.getFlag(moduleId, 'inPartyInventory');
+        const isInPartyLoot = currentItem.getFlag(moduleId, 'inPartyLoot');
 
-        if (isInPartyInventory)
+        if (isInPartyLoot)
         {
             $(`
                 <div class="item-state-icon" title="${title}">
@@ -242,3 +242,5 @@ export function addGroupInventoryIndicatorTidy(html, actor)
         }
     });
 }
+
+
